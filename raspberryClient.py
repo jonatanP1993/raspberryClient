@@ -14,8 +14,9 @@ ENDPOINT = 'https://heat-map-api.azure-api.net/CreateClientReadings'
 GETURL = 'https://heat-map-api.azure-api.net/GenerateClientPositions'
 HEADERS = {"Ocp-Apim-Subscription-Key":""}
 MACURL = 'https://heat-map-api.azure-api.net/ReadAuthorizedMacAddresses'
-VALIDMACS = []
+
 def main():
+    VALIDMACS = []
     APID = "20"
     _INTERFACE = "wlan0mon"
     SEND_GET = True
@@ -48,6 +49,7 @@ def SendGet():
         time.sleep(30)
 
 def RetrieveMacs():
+    global VALIDMACS
     while True:
         print("Fetching MACS from Azure")
         response = requests.get(MACURL, headers=HEADERS)
@@ -58,9 +60,7 @@ def RetrieveMacs():
                 temp_macs.append(str(k['macAddress']))
             #IF VALID REPONSE  -> UPDATE THE LIST OF MACS
             VALIDMACS = temp_macs
-            
         time.sleep(120)
-
 
 class Listener:
     def __init__(self, apid, interface):
