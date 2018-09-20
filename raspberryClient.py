@@ -18,7 +18,7 @@ VALIDMACS = []
 def main():
     APID = "20"
     _INTERFACE = "wlan0mon"
-    SEND_GET = False
+    SEND_GET = True
     init()
     client = Listener(APID, _INTERFACE)
     
@@ -53,9 +53,12 @@ def RetrieveMacs():
         response = requests.get(MACURL, headers=HEADERS)
         if response.status_code == 200:
             macs = response.json()
-            print(macs)
+            temp_macs = []
+            for k in macs:
+                temp_macs.append(str(k['macAddress']))
             #IF VALID REPONSE  -> UPDATE THE LIST OF MACS
-            print("List updated")
+            VALIDMACS = temp_macs
+            
         time.sleep(120)
 
 
@@ -66,8 +69,8 @@ class Listener:
         self.data = {}
 
     def sniffTraffic(self):
+        print("Starting monitoring")
         try:
-
             while True:
                 self.data = {}
                 packets = sca.sniff(iface=self.interface, count=0, timeout=3)
@@ -81,8 +84,8 @@ class Listener:
                         if "dBm_AntSignal=" in k:
                             sig = self.format_signal(k)
                             self.addNewData(pkt.addr2, sig)
-                
-                self.send_data(ts, self.data)
+                if len(self.data) > 0:
+                    self.send_data(ts, self.data)
                 time.sleep(1)
 
         except KeyboardInterrupt:
